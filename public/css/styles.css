@@ -1,6 +1,11 @@
+* {
+    font-family:'Raleway';
+}
+
 #navbar img{
     width: 50px;
 }
+
 #navbar {
     justify-content: space-between;
 }
@@ -12,6 +17,7 @@
 header {
     border-bottom: 1px solid #ccc;
 }
+
 footer {
   text-align: center;
   background-color: #353E48;
@@ -19,9 +25,11 @@ footer {
   padding: 30px;
   width: 100%;
 }
+
 .content-wrapper {
     flex: 1;
 }
+
 html, body {
     height: 100%;
     margin: 0;
@@ -31,4 +39,31 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+}
+
+#search-container {
+    background-image: url("../img/banner.jpg");
+    background-size: cover;
+    background-position: center;
+    height: 500px;
+    padding: 50px;
+    text-align: center;
+}
+
+#search-container form {
+    width: 50%;
+    margin-top: 150px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#equipaments-container{
+    padding: 50px;
+}
+
+#equipaments-container .card{
+    margin: 5px;
+    padding: 0%;
+    border-radius: 10px;
+    width: 354px;
 }
