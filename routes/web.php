@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', [EquipamentController::class, 'index']);
-Route::get('/equipaments/create', [EquipamentController::class, 'create']);
+Route::get('/equipaments/create', [EquipamentController::class, 'create'])->middleware('auth');
 Route::post('/equipaments', [EquipamentController::class, 'store']);
 Route::get('/equipaments/{id}', [EquipamentController::class, 'show']);
 Route::delete('/equipaments/{id}', [EquipamentController::class, 'destroy'])->middleware('auth');

@@ -14,24 +14,31 @@ return new class extends Migration
         Schema::create('equipament_availabilities', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+
+            // Relacionamentos
             $table->foreignId('equipament_id')->constrained('equipaments')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
+            // Datas de disponibilidade
             $table->date('start_date');
             $table->date('end_date');
-            $table->boolean('is_available')->default(true);
-            $table->text('notes')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->unique(['equipament_id', 'start_date', 'end_date'], 'unique_availability'); // Ensure unique availability per equipament and date range
 
-            // Optional: Add an index for faster queries on availability
+            // Informações adicionais
+            $table->boolean('is_available')->default(true);
+            $table->string('status')->default('available'); // e.g. available, booked, cancelled
+            $table->decimal('price', 8, 2)->nullable();
+            $table->text('description')->nullable();
+            $table->text('notes')->nullable();
+
+            // Soft delete
+            $table->softDeletes();
+
+            // Índices
+            $table->unique(['equipament_id', 'start_date', 'end_date'], 'unique_availability');
             $table->index(['equipament_id', 'start_date', 'end_date'], 'equipament_availability_index');
-            $table->softDeletes(); // Allows for soft deletion of availabilities
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); // Ensure user exists
-            $table->foreign('equipament_id')->references('id')->on('equipaments')->onDelete('cascade'); // Ensure equipament exists
-            $table->string('status')->default('available'); // Status of the availability, e.g., available, booked, cancelled
-            $table->decimal('price', 8, 2)->nullable(); // Optional price for the availability
-            $table->text('description')->nullable(); // Optional description for the availability   
         });
     }
+
 
     /**
      * Reverse the migrations.

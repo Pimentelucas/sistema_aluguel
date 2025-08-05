@@ -52,6 +52,15 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    public function equipaments()
+    {
+        return $this->hasMany('App\Models\Equipament');
+    }
+
+    public function equipamentsAsParticipant() {
+        return $this->belongsToMany('App\Models\Equipament');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

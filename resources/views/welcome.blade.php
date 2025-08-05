@@ -22,7 +22,7 @@
             <img src="/img/equipaments/{{ $equipament->image }}" alt="{{ $equipament ->title }}">
             <div class="card-body">
                 <h5 class="card-title">{{ $equipament->title}}</h5>
-                <a href="/events/{{ $equipament->id }}" class="btn btn-primary">Saber mais</a>
+                <a href="/equipaments/{{ $equipament->id }}" class="btn btn-primary">Saber mais</a>
             </div>
         </div>
         @endforeach

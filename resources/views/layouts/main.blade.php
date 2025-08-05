@@ -55,9 +55,15 @@
                 </nav>
             </header>
             <main>
-                @yield('content')
-            </main>
-        
+                <div class="container-fluid">
+                    <div class="row">
+                        @if (@session('msg'))
+                            <p class="msg">{{ session('msg') }}</p>
+                        @endif
+                        @yield('content')
+                    </div>
+                </div>
+            </main>      
             <footer>
                 <p>Eloca &copy; 2016</p>
             </footer>

@@ -38,7 +38,7 @@ class EquipamentController extends Controller
         $equipament->description = $request->description;
         //$equipament->items = $request->items;
         $equipament->value = $request->value;
-        //$equipament->user_id = Auth::user()->id;
+        $equipament->user_id = Auth::user()->id;
         //$equipament->user()->associate(Auth::user());
 
         
