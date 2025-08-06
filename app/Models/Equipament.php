@@ -18,4 +18,9 @@ class Equipament extends Model
     public function users() {
         return $this->belongsToMany('App\Models\User');
     }
+
+    public function availabilities() {
+    return $this->hasMany(EquipamentAvailability::class);
+    }
+
 }

@@ -12,6 +12,7 @@
 
         <link rel="stylesheet" href="/css/styles.css">
         <script src="/js/scripts.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     </head>
     <body>
         <div class="content-wrapper">
@@ -68,5 +69,13 @@
                 <p>Eloca &copy; 2016</p>
             </footer>
             <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script>
+                flatpickr("#data_range", {
+                    mode: "range",
+                    dateFormat: "d/m/Y",
+                    disable: reservedDates
+                });
+            </script>
         </body>
 </html>

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Equipament;
+use App\Models\EquipamentAvailability;
 
 class EquipamentController extends Controller
 {
@@ -13,8 +14,9 @@ class EquipamentController extends Controller
     {
         $search = request('search');
 
+
         if($search) {
-            $equipaments = Equipament::where([
+             $equipaments = Equipament::where([
                 ['title', 'like', '%'.$search.'%']
             ])->get();
         }else{
@@ -25,7 +27,7 @@ class EquipamentController extends Controller
     }
 
     public function create()
-    {
+    {       
         return view('equipaments.create');
     }
 
@@ -73,13 +75,23 @@ class EquipamentController extends Controller
         $user = Auth::user();
         $hasUserJoined = false;
 
+        $availabilities = EquipamentAvailability::where('equipament_id', $equipament->id)->get();
+
+        $reservedDates = $availabilities->map(function ($availability) {
+            return [
+                'from' => $availability->start_date,
+                'to' => $availability->end_date,
+            ];
+        });
+
+
         if($user) {
             $hasUserJoined = $user->equipamentsAsParticipant->contains($equipament);
         }
 
         $equipamentOwner = User::where('id', $equipament->user_id)->first()->toArray();
 
-        return view('equipaments.show', ['equipament' => $equipament, 'equipamentOwner' => $equipamentOwner, 'hasUserJoined' => $hasUserJoined]);
+        return view('equipaments.show', ['equipament' => $equipament, 'equipamentOwner' => $equipamentOwner, 'hasUserJoined' => $hasUserJoined, 'reservedDates' => $reservedDates]);
        /* $equipament = Equipament::findOrFail($id);
 
         $user = Auth::user();

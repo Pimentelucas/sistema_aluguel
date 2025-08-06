@@ -15,12 +15,8 @@
             <div id="info-container" class="col-md-6">
                 <h1>{{ $equipament->title }}</h1>
                 <p class="evets-owner"><ion-icon name="star-outline"></ion-icon>{{ $equipamentOwner['name'] }}</p>
-
-                @if($equipament->private)
-                    <p class="equipament-private">Este é um equipamento privado.</p>
-                @else
-                    <p class="equipament-public">Este equipamento é aberto ao público.</p>
-                @endif
+                <input type="text" id="data_range" name="data_range" class="form-control">
+                <p class='equipament-value'>Valor da diária: R$ {{ $equipament->value }}</p>     
                 @if (!$hasUserJoined)
                     <form action="/equipaments/join/{{ $equipament->id }}" method="POST" id="equipament-form">
                         @csrf
@@ -31,6 +27,9 @@
                     <p class="already-joined-msg">Você já está participando deste equipamento!</p>
                 @endif 
             </div>
+            <script>
+                const reservedDates = @json($reservedDates);
+            </script>
         </div>
     </div>
 @endsection 
