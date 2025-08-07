@@ -70,12 +70,7 @@
             </footer>
             <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-            <script>
-                flatpickr("#data_range", {
-                    mode: "range",
-                    dateFormat: "d/m/Y",
-                    disable: reservedDates
-                });
-            </script>
+            
+
         </body>
 </html>

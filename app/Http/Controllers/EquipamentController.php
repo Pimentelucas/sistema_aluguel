@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Equipament;
 use App\Models\EquipamentAvailability;
+use Carbon\Carbon;
 
 class EquipamentController extends Controller
 {
@@ -139,4 +140,61 @@ class EquipamentController extends Controller
     {
         // Logic to update a specific equipment
     }
+
+    public function reserve(Request $request) {
+        // Validação básica
+        $request->validate([
+            'equipament_id' => 'required|exists:equipaments,id',
+            'data_range' => 'required|string'
+        ]);
+
+        // Dividir intervalo (ex: "2025-08-10 to 2025-08-13")
+        [$startDate, $endDate] = explode(' to ', $request->data_range);
+
+        $start = Carbon::createFromFormat('d/m/Y', trim($startDate));
+        $end = Carbon::createFromFormat('d/m/Y', trim($endDate));
+
+        // Verifica se já existe reserva com sobreposição de datas para o mesmo equipamento
+        $hasConflict = EquipamentAvailability::where('equipament_id', $request->equipament_id)
+            ->where(function ($query) use ($start, $end) {
+                $query->whereBetween('start_date', [$start, $end])
+                    ->orWhereBetween('end_date', [$start, $end])
+                    ->orWhere(function ($q) use ($start, $end) {
+                        $q->where('start_date', '<=', $start)
+                            ->where('end_date', '>=', $end);
+                    });
+            })
+            ->exists();
+
+        if ($hasConflict) {
+            return redirect()->back()->with('error', 'Este equipamento já está reservado nesse período.');
+        }
+
+        // Criar nova indisponibilidade
+        EquipamentAvailability::create([
+            'equipament_id' => $request->equipament_id,
+            'user_id' => auth()->id(),
+            'start_date' => $start,
+            'end_date' => $end,
+        ]);
+
+        return redirect()->back()->with('success', 'Reserva realizada com sucesso!');
+    }
+
+    public function getReservations($id) {
+        $reservations = EquipamentAvailability::where('equipament_id', $id)
+            ->get(['start_date as start', 'end_date as end']);
+
+        $events = $reservations->map(function ($reservation) {
+            return [
+                'title' => 'Reservado',
+                'start' => $reservation->start,
+                'end' => Carbon::parse($reservation->end)->addDay(), // FullCalendar exige end exclusivo
+                'color' => 'red',
+            ];
+        });
+
+        return response()->json($events);
+    }
+
 }
