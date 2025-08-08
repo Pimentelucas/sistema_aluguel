@@ -13,7 +13,7 @@ Route::get('/equipaments/edit/{id}', [EquipamentController::class, 'edit'])->mid
 Route::put('/equipaments/update/{id}', [EquipamentController::class, 'update'])->middleware('auth');
 Route::post('/equipaments/reserve', [EquipamentController::class, 'reserve'])->name('equipaments.reserve');
 Route::get('/equipaments/{id}/reservations', [EquipamentController::class, 'getReservations']);
-
+Route::get('/dashboard', [EquipamentController::class, 'dashboard'])->middleware('auth');
 
 Route::middleware([
     'auth:sanctum',

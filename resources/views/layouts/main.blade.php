@@ -10,9 +10,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Raleway" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css">
 
-        <link rel="stylesheet" href="/css/styles.css">
-        <script src="/js/scripts.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <link rel="stylesheet" href="/css/styles.css">
+
     </head>
     <body>
         <div class="content-wrapper">
@@ -68,8 +68,10 @@
             <footer>
                 <p>Eloca &copy; 2016</p>
             </footer>
-            <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script src="/js/scripts.js"></script>
+            <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+
             
 
         </body>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Equipament;
 use App\Models\EquipamentAvailability;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class EquipamentController extends Controller
 {
@@ -76,14 +77,18 @@ class EquipamentController extends Controller
         $user = Auth::user();
         $hasUserJoined = false;
 
-        $availabilities = EquipamentAvailability::where('equipament_id', $equipament->id)->get();
+        $reservations = EquipamentAvailability::where('equipament_id', $equipament->id)->get();
 
-        $reservedDates = $availabilities->map(function ($availability) {
-            return [
-                'from' => $availability->start_date,
-                'to' => $availability->end_date,
-            ];
-        });
+        $reservedDates = [];
+            foreach ($reservations as $reservation) {
+                $period = CarbonPeriod::create(
+                    Carbon::parse($reservation->start_date),
+                    Carbon::parse($reservation->end_date)
+                );                
+                foreach ($period as $date) {
+                    $reservedDates[] = $date->format('Y-m-d');
+                }
+            }
 
 
         if($user) {
@@ -93,6 +98,7 @@ class EquipamentController extends Controller
         $equipamentOwner = User::where('id', $equipament->user_id)->first()->toArray();
 
         return view('equipaments.show', ['equipament' => $equipament, 'equipamentOwner' => $equipamentOwner, 'hasUserJoined' => $hasUserJoined, 'reservedDates' => $reservedDates]);
+
        /* $equipament = Equipament::findOrFail($id);
 
         $user = Auth::user();
@@ -105,11 +111,11 @@ class EquipamentController extends Controller
             return redirect('/')->with('msg', 'Equipamento não encontrado!');
         }
 
-        // Optionally, you can also load related data, such as availabilities
-        $availabilities = $equipament->availabilities;
+        // Optionally, you can also load related data, such as reser$reservation
+        $reservation = $equipament->reser$reservation;
 
         // Return the view with the equipament data
-        //return view('equipaments.show', ['equipament' => $equipament, 'availabilities' => $availabilities, 'hasUserJoined' => $hasUserJoined]);
+        //return view('equipaments.show', ['equipament' => $equipament, 'reser$reservation' => $reservation, 'hasUserJoined' => $hasUserJoined]);
         // For now, just return the equipament data
         // You can create a view for showing the equipament details
         // Example: return view('equipaments.show', compact('equipament'));
@@ -185,7 +191,7 @@ class EquipamentController extends Controller
         $reservations = EquipamentAvailability::where('equipament_id', $id)
             ->get(['start_date as start', 'end_date as end']);
 
-        $events = $reservations->map(function ($reservation) {
+        $equipaments = $reservations->map(function ($reservation) {
             return [
                 'title' => 'Reservado',
                 'start' => $reservation->start,
@@ -194,7 +200,38 @@ class EquipamentController extends Controller
             ];
         });
 
-        return response()->json($events);
+        return response()->json($equipaments);
+    }
+
+    public function dashboard() {
+        $user = Auth::user();
+
+        $equipaments = $user->equipaments;
+
+        $equipamentsAsParticipant = $user->equipamentsAsParticipant;
+
+        return view('equipaments.dashboard', ['equipaments' => $equipaments, 'equipamentsasparticipant' => $equipamentsAsParticipant]);
+    }
+
+    public function joinEquipament($id) {
+        $user = Auth::user();
+
+        $user->equipamentsAsParticipant()->attach($id);
+
+        $equipament = Equipament::findOrFail($id);
+
+        return redirect('/dashboard')->with('msg', 'Sua presença está confirmada no equipamento!'. $equipament->title);
+    }
+
+    public function leaveEquipament($id) {
+        $user = Auth::user();
+
+        $user->equipamentsAsParticipant()->detach($id);
+
+        $equipament = Equipament::findOrFail($id);
+
+        return redirect('/dashboard')->with('msg', 'Você saiu com sucesso do equipamento!'. $equipament->title);
+        
     }
 
 }

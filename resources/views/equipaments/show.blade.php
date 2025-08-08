@@ -19,31 +19,6 @@
                 <ion-icon name="star-outline"></ion-icon>{{ $equipamentOwner['name'] }}
             </p>
             <div id="calendar" style="margin-bottom: 20px;"></div>
-            <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var calendarEl = document.getElementById('calendar');
-                        var equipamentId = {{ $equipament->id }};
-
-                        var calendar = new FullCalendar.Calendar(calendarEl, {
-                            initialView: 'dayGridMonth',
-                            locale: 'pt-br',
-                            headerToolbar: {
-                                left: 'prev,next today',
-                                center: 'title',
-                                right: 'dayGridMonth,timeGridWeek'
-                            },
-                            events: `/equipaments/${equipamentId}/reservations`,
-                            selectable: true,
-                            select: function (info) {
-                                $('#start_date').val(moment(info.start).format('DD/MM/YYYY'));
-                                $('#end_date').val(moment(info.end).subtract(1, 'days').format('DD/MM/YYYY'));
-                                $('#reservationModal').modal('show');
-                            }
-                        });
-
-                        calendar.render();
-                    });
-            </script>
 
             <!-- Mensagens de sessão -->
             @if(session('success'))
@@ -58,69 +33,58 @@
                 </div>
             @endif
 
-            <!-- ✅ Formulário de reserva -->
+            
             <form action="{{ route('equipaments.reserve') }}" method="POST" id="equipament-form">
-                @csrf
-
-                <!-- Calendário com intervalo de datas -->
+                @csrf                
                 <label for="data_range">Escolha o período para reserva:</label>
-                <input type="text" id="data_range" name="data_range" class="form-control" required>
-
-                <!-- ID do equipamento (oculto) -->
+                <input type="text" id="data_range" name="data_range" class="form-control" required>                
                 <input type="hidden" name="equipament_id" value="{{ $equipament->id }}">
-
-                <!-- Valor da diária exibido -->
-                <p class="equipament-value">Valor da diária: R$ {{ $equipament->value }}</p>
-
-                <!-- Valor total (exibido após seleção de datas) -->
+                <p class="equipament-value">Valor da diária: R$ {{ $equipament->value }}</p>              
                 <p id="total-value" class="equipament-value">Valor total: R$ 0,00</p>
-
-
-                <!-- Botões -->
                 <button type="submit" class="btn btn-primary mt-2">Reservar</button>
                 <a href="/" class="btn btn-secondary mt-2">Voltar</a>
             </form>
-
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
+                <script>
                     const reservedDates = @json($reservedDates);
-                    const diaria = {{ $equipament->value }};
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const diaria = {{ $equipament->value }};
+                        const disabledDates = reservedDates.map(dateStr => new Date(dateStr + 'T00:00:00'));
 
-                    flatpickr("#data_range", {
-                        mode: "range",
-                        dateFormat: "d/m/Y",
-                        disable: reservedDates,
-                        onChange: function(selectedDates) {
-                            if (selectedDates.length === 2) {
-                                const start = selectedDates[0];
-                                const end = selectedDates[1];
+                        flatpickr("#data_range", {
+                            mode: "range",
+                            dateFormat: "d/m/Y",
+                            disable: disabledDates,
+                            minDate: "today", 
+                            onChange: function(selectedDates) {
+                                if (selectedDates.length === 2) {
+                                    const start = selectedDates[0];
+                                    const end = selectedDates[1];
 
-                                const diffTime = Math.abs(end - start);
-                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                                    const diffTime = Math.abs(end - start);
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-                                const total = diaria * diffDays;
+                                    const total = diaria * diffDays;
 
-                                const formatter = new Intl.NumberFormat('pt-BR', {
-                                    style: 'currency',
-                                    currency: 'BRL'
-                                });
+                                    const formatter = new Intl.NumberFormat('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL'
+                                    });
 
-                                document.getElementById('total-value').textContent = `Valor total: ${formatter.format(total)}`;
-                            } else {
-                                document.getElementById('total-value').textContent = `Valor total: R$ 0,00`;
+                                    document.getElementById('total-value').textContent = `Valor total: ${formatter.format(total)}`;
+                                } else {
+                                    document.getElementById('total-value').textContent = `Valor total: R$ 0,00`;
+                                }
                             }
-                        }
+                        });
                     });
-                });
-            </script>
+                </script>
+
         </div>
 
         <!-- Passando datas reservadas para o JS -->
-        @if(isset($reservedDates))
-            <script>
-                const reservedDates = @json($reservedDates);
-            </script>
-        @endif
+
+       
+
 
     </div>
 </div>
