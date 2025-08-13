@@ -57,8 +57,12 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Equipament');
     }
 
-    public function equipamentsAsParticipant() {
-        return $this->belongsToMany('App\Models\Equipament');
+    public function ownedEquipaments() {
+        return $this->hasMany(Equipament::class, 'user_id');
+    }
+
+    public function rentedEquipaments() {
+        return $this->hasMany(EquipamentAvailability::class, 'equipament_availabilities', 'user_id', 'equipament_id');
     }
 
     /**

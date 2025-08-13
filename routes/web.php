@@ -1,7 +1,12 @@
 <?php
 
 use App\Http\Controllers\EquipamentController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Equipament;
+use App\Models\EquipamentAvailability;
+use Illuminate\Support\Facades\Auth;
+
 
 
 Route::get('/', [EquipamentController::class, 'index']);
@@ -13,14 +18,20 @@ Route::get('/equipaments/edit/{id}', [EquipamentController::class, 'edit'])->mid
 Route::put('/equipaments/update/{id}', [EquipamentController::class, 'update'])->middleware('auth');
 Route::post('/equipaments/reserve', [EquipamentController::class, 'reserve'])->name('equipaments.reserve');
 Route::get('/equipaments/{id}/reservations', [EquipamentController::class, 'getReservations']);
-Route::get('/dashboard', [EquipamentController::class, 'dashboard'])->middleware('auth');
+Route::resource('equipaments', EquipamentController::class)->middleware('auth');
+Route::get('/dashboard', function () {
+    $userId = Auth::id();
+    $createdEquipaments = Equipament::where('user_id', $userId)->get();
+    $rentedEquipamentIds = EquipamentAvailability::where('user_id', $userId)
+        ->pluck('equipament_id')
+        ->unique()
+        ->toArray();
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});
+    $rentedEquipaments = Equipament::whereIn('id', $rentedEquipamentIds)->get();
+
+    return view('equipaments.dashboard', [
+        'createdEquipaments' => $createdEquipaments,
+        'rentedEquipaments'  => $rentedEquipaments,
+    ]);
+})->middleware(['auth'])->name('dashboard');
+

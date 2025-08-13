@@ -88,64 +88,69 @@ class EquipamentController extends Controller
                 foreach ($period as $date) {
                     $reservedDates[] = $date->format('Y-m-d');
                 }
+                
             }
 
-
-        if($user) {
-            $hasUserJoined = $user->equipamentsAsParticipant->contains($equipament);
+        if ($user) {
+            $hasUserJoined = $equipament->users()->where('user_id', $user->id)->exists();
         }
+        
 
         $equipamentOwner = User::where('id', $equipament->user_id)->first()->toArray();
 
         return view('equipaments.show', ['equipament' => $equipament, 'equipamentOwner' => $equipamentOwner, 'hasUserJoined' => $hasUserJoined, 'reservedDates' => $reservedDates]);
 
-       /* $equipament = Equipament::findOrFail($id);
-
-        $user = Auth::user();
-        $hasUserJoined = false;
-
-       // if ($user) {
-            $hasUserJoined = $equipament->users()->where('user_id', $user->id)->exists();
-        }
-        if (!$equipament) {
-            return redirect('/')->with('msg', 'Equipamento não encontrado!');
-        }
-
-        // Optionally, you can also load related data, such as reser$reservation
-        $reservation = $equipament->reser$reservation;
-
-        // Return the view with the equipament data
-        //return view('equipaments.show', ['equipament' => $equipament, 'reser$reservation' => $reservation, 'hasUserJoined' => $hasUserJoined]);
-        // For now, just return the equipament data
-        // You can create a view for showing the equipament details
-        // Example: return view('equipaments.show', compact('equipament'));
-        
-        // Assuming you have a view named 'equipaments.show'
-        // You can create this view to display the equipament details
-        // For now, just return the equipament data
-        // Example:
-        // return view('equipaments.show', ['equipament' => $equipament]);
-        
-        // If you have a specific view for showing equipaments, use that
-        // Otherwise, you can create a simple view to display the equipament details    
-        
-        //return view('equipaments.show', ['equipament' => $equipament]);*/
+      
     }
 
     public function destroy($id)
     {
-        // Logic to delete a specific equipment
+        $equipament = Equipament::findOrFail($id);
+        
+        if(Auth::user()->id !== $equipament->user_id) {
+            return redirect('/dashboard')->with('msg', 'Você não tem permissão para excluir este equipamento!');
+        }
+        $equipament->delete();
+        
+        return redirect('/dashboard')->with('msg', 'Equipamento excluído com sucesso!');
     }
 
+    public function update(Request $request)
+    {
+        $data = $request->all();
+
+        // Image Upload
+        if($request->hasFile('image') && $request->file('image')->isValid()) {
+
+            $requestImage = $request->image;
+
+            $extension = $requestImage->extension();
+
+            $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . "." . $extension;
+
+            $requestImage->move(public_path('img/equipaments'), $imageName);
+
+            $data['image'] = $imageName;
+
+        }
+
+        Equipament::findOrFail($request->id)->update($data);
+
+        return redirect('/dashboard')->with('msg', 'Equipamento editado com sucesso!');
+    }
     public function edit($id)
     {
-        // Logic to edit a specific equipment
+        $equipament = Equipament::findOrFail($id);
+
+        if(Auth::user()->id !== $equipament->user_id) {      
+            return redirect('/dashboard')->with('msg', 'Você não tem permissão para editar este equipamento!');
+        }
+        return view('equipaments.edit', ['equipament' => $equipament]);
+
     }
 
-    public function update(Request $request, $id)
-    {
-        // Logic to update a specific equipment
-    }
+        
+    
 
     public function reserve(Request $request) {
         // Validação básica
@@ -202,36 +207,34 @@ class EquipamentController extends Controller
 
         return response()->json($equipaments);
     }
-
     public function dashboard() {
         $user = Auth::user();
 
         $equipaments = $user->equipaments;
+        $equipaments = Equipament::all();
 
-        $equipamentsAsParticipant = $user->equipamentsAsParticipant;
+        return view('dashboard', compact('equipaments'));
 
-        return view('equipaments.dashboard', ['equipaments' => $equipaments, 'equipamentsasparticipant' => $equipamentsAsParticipant]);
     }
 
-    public function joinEquipament($id) {
-        $user = Auth::user();
+    public function render()
+    {
+        $userId = Auth::id();
 
-        $user->equipamentsAsParticipant()->attach($id);
+        // Equipamentos criados pelo usuário
+        $createdEquipaments = Equipament::where('user_id', $userId)->get();
 
-        $equipament = Equipament::findOrFail($id);
+        // Equipamentos alugados pelo usuário
+        $rentedEquipaments = Equipament::whereHas('availabilities', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->get();
 
-        return redirect('/dashboard')->with('msg', 'Sua presença está confirmada no equipamento!'. $equipament->title);
+        return view('dashboard', [
+            'equipaments' => $createdEquipaments->merge($rentedEquipaments)
+        ]);
     }
 
-    public function leaveEquipament($id) {
-        $user = Auth::user();
 
-        $user->equipamentsAsParticipant()->detach($id);
 
-        $equipament = Equipament::findOrFail($id);
-
-        return redirect('/dashboard')->with('msg', 'Você saiu com sucesso do equipamento!'. $equipament->title);
-        
-    }
-
+    
 }
