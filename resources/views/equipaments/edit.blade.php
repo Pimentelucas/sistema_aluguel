@@ -30,10 +30,11 @@
             <label for="private">O equipamneto está disponível?:</label>
             <select name="private" id="private" class="form-control">
                 <option value="0">Sim</option>
-                <option value="1">Não</option>
+                <option value="1" {{ $equipament->private == 1 ? "selected='selected'" : ""}}>Não</option>
             </select>
         </div>
-        <input type="submit" class="btn btn-primary" value="Criar equipamento">
+        <label for="title">Editar equipamento:</label>
+        <input type="submit" class="btn btn-primary" value="Editar equipamento" placeholder="Editar equipamento">
     </form>
         
 </div>

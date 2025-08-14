@@ -22,12 +22,12 @@
             @foreach($createdEquipaments as $equipament)
                 <tr>
                     <td scropt="row">{{ $loop->index + 1 }}</td>
-                    <td>
+                    <td data-label="Nome">
                         <a href="/equipaments/{{ $equipament->id }}" class="event-title-link">
                             {{ $equipament->title ?? $equipament->name }}
                         </a>
                     </td>
-                    <td>
+                    <td data-label="Ações">
                         <a href="/equipaments/edit/{{ $equipament->id }}" class="btn btn-info edit-btn">
                             <ion-icon name="create-outline"></ion-icon> Editar
                         </a>

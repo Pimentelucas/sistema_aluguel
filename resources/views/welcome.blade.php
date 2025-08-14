@@ -14,7 +14,6 @@
     <h2>Buscando por: {{ $search }}</h2>
     @else
     <h2>Nossos equipamentos</h2>
-    <p>Veja os equipamentos disponíveis</p>
     @endif
         <div id="cards-container" class="row">
            @foreach ($equipaments as $equipament)

@@ -40,12 +40,8 @@ class EquipamentController extends Controller
         $equipament->title = $request->title;
         $equipament->private = $request->private;
         $equipament->description = $request->description;
-        //$equipament->items = $request->items;
         $equipament->value = $request->value;
         $equipament->user_id = Auth::user()->id;
-        //$equipament->user()->associate(Auth::user());
-
-        
     
 
         if($request->hasFile('image') && $request->file('image')->isValid()) {
@@ -60,10 +56,6 @@ class EquipamentController extends Controller
 
             $equipament->image = $imageName;
         }
-        // Save the equipament to the database
-        //$equipament->items = $request->items ? json_encode($request->items) : null;
-        //$equipament->status = 'available'; // Default status
-        //$equipament->price = $request->price; // Optional price
 
         $equipament->save();
 

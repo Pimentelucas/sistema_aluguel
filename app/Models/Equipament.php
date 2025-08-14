@@ -24,7 +24,7 @@ class Equipament extends Model
 
      
 
-    protected $fillable = ['title', 'user_id'];
+    protected $fillable = ['title', 'user_id', 'description', 'value', 'image', 'private'];
 
     public function availabilities()
     {
